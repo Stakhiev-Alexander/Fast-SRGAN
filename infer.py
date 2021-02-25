@@ -1,8 +1,11 @@
 from argparse import ArgumentParser
 from tensorflow import keras
 import numpy as np
+from pathlib import Path
 import cv2
 import os
+from tqdm import tqdm
+
 
 parser = ArgumentParser()
 parser.add_argument('--image_dir', type=str, help='Directory where images are kept.')
@@ -15,14 +18,16 @@ def main():
     # Get all image paths
     image_paths = [os.path.join(args.image_dir, x) for x in os.listdir(args.image_dir)]
 
+    base_path = str(Path(__file__).parent.absolute())
+
     # Change model input shape to accept all size inputs
-    model = keras.models.load_model('models/generator.h5')
+    model = keras.models.load_model(base_path + '/models/generator.h5')
     inputs = keras.Input((None, None, 3))
     output = model(inputs)
     model = keras.models.Model(inputs, output)
 
     # Loop over all images
-    for image_path in image_paths:
+    for image_path in tqdm(image_paths):
         
         # Read image
         low_res = cv2.imread(image_path, 1)
